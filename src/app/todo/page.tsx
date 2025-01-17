@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 
 interface Todo {
   id: number;
@@ -49,25 +52,22 @@ export default function TodosPage() {
       <ul className="list-none space-y-2">
         {todos.map((todo) => (
           <li key={todo.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={todo.completed}
-              onChange={() => toggleComplete(todo.id)}
-              className="rounded text-blue-500 focus:ring-blue-500"
+              onCheckedChange={() => toggleComplete(todo.id)}
             />
-            <Link
-              href={`/todos/${todo.id}`}
-              className={`hover:underline ${
+            <span
+              className={`${
                 todo.completed ? "line-through text-gray-500" : ""
               }`}
             >
               {todo.text}
-            </Link>
+            </span>
           </li>
         ))}
       </ul>
       <div className="mt-4">
-        <input
+        <Input
           type="text"
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
@@ -75,12 +75,12 @@ export default function TodosPage() {
           placeholder="Add a new to-do..."
           className="w-full px-4 py-2 rounded bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
         />
-        <button
+        <Button
           onClick={handleAddTodo}
           className="mt-2 w-full px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
         >
           Add To-Do
-        </button>
+        </Button>
       </div>
     </div>
   );

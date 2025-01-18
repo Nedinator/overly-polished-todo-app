@@ -95,3 +95,30 @@ export const PUT = async (req: NextRequest): Promise<NextResponse> => {
     }
   }
 };
+
+export const DELETE = async (req: NextRequest): Promise<NextResponse> => {
+  try {
+    await connectDb();
+
+    const userId = await getUserId(req); // Get the user ID from the session
+
+    const body = await req.json(); // Parse the request body
+    const { id } = body;
+
+    // Ensure the id is a valid MongoDB ObjectId
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid ID");
+    }
+
+    // Delete the todo for the current user
+    await Todo.deleteOne({ _id: id, userId });
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    } else {
+      return NextResponse.json({ error: "Unknown error" }, { status: 401 });
+    }
+  }
+};

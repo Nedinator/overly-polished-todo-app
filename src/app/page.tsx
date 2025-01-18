@@ -39,13 +39,13 @@ export default function HomeSplash() {
       ) : (
         <div className="flex space-x-4">
           <Button
-            onClick={() => alert("Go to Todos")}
+            onClick={() => (window.location.href = "/todo")}
             className="bg-white text-blue-600 px-6 py-3 rounded-lg hover:bg-gray-100"
           >
             View Todos
           </Button>
           <Button
-            onClick={() => alert("Go to Settings")}
+            onClick={() => (window.location.href = "/settings")}
             className="bg-white text-blue-600 px-6 py-3 rounded-lg hover:bg-gray-100"
           >
             Settings

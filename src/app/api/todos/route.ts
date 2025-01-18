@@ -2,16 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/mongo";
 import Todo from "@/models/todo";
 import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { Session } from "@/types/Session";
 
 // Helper to get the user ID from the session
 const getUserId = async (req: NextRequest) => {
-  const session = await getServerSession(req); // Use the correct session method for App Router
+  const session: Session | null = await getServerSession(authOptions);
 
-  console.log("Session", session);
-
-  if (!session) {
+  if (!session || !session.user || !session.user.email) {
     throw new Error("Unauthorized");
   }
+
   return session.user?.email;
 };
 
@@ -27,7 +28,11 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json(todos, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: error.message }, { status: 401 });
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    } else {
+      return NextResponse.json({ error: "Unknown error" }, { status: 401 });
+    }
   }
 };
 
@@ -51,7 +56,11 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json(newTodo, { status: 201 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    } else {
+      return NextResponse.json({ error: "Unknown error" }, { status: 401 });
+    }
   }
 };
 
@@ -73,6 +82,10 @@ export const PUT = async (req: NextRequest) => {
     return NextResponse.json(updatedTodo, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    } else {
+      return NextResponse.json({ error: "Unknown error" }, { status: 401 });
+    }
   }
 };

@@ -71,7 +71,7 @@ export default function TodosPage() {
       completed: !todoToToggle.completed,
     };
 
-    await fetch(`/api/todos/${id}`, {
+    await fetch(`/api/todos`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

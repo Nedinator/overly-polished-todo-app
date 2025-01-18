@@ -7,7 +7,7 @@ if (!googleClientId || !googleClientSecret) {
   throw new Error("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set");
 }
 
-const handler = NextAuth({
+export const authOptions = NextAuth({
   providers: [
     GoogleProvider({
       clientId: googleClientId,
@@ -27,4 +27,4 @@ const handler = NextAuth({
   },
 });
 
-export { handler as GET, handler as POST };
+export { authOptions as GET, authOptions as POST };

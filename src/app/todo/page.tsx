@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { text } from "stream/consumers";
 
 // Interface for the Todo type
 interface Todo {
@@ -67,7 +68,8 @@ export default function TodosPage() {
     if (!todoToToggle) return;
 
     const updatedTodo = {
-      ...todoToToggle,
+      id,
+      text: todoToToggle.text,
       completed: !todoToToggle.completed,
     };
 

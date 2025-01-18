@@ -4,9 +4,10 @@ import Todo from "@/models/todo";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { Session } from "@/types/Session";
+import mongoose from "mongoose";
 
 // Helper to get the user ID from the session
-const getUserId = async (req: NextRequest) => {
+const getUserId = async (req: NextRequest): Promise<string> => {
   const session: Session | null = await getServerSession(authOptions);
 
   if (!session || !session.user || !session.user.email) {
@@ -17,7 +18,7 @@ const getUserId = async (req: NextRequest) => {
 };
 
 // Export a named handler for GET requests
-export const GET = async (req: NextRequest) => {
+export const GET = async (req: NextRequest): Promise<NextResponse> => {
   try {
     await connectDb();
 
@@ -37,7 +38,7 @@ export const GET = async (req: NextRequest) => {
 };
 
 // Export a named handler for POST requests
-export const POST = async (req: NextRequest) => {
+export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
     await connectDb();
 
@@ -64,7 +65,7 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-export const PUT = async (req: NextRequest) => {
+export const PUT = async (req: NextRequest): Promise<NextResponse> => {
   try {
     await connectDb();
 
@@ -72,6 +73,11 @@ export const PUT = async (req: NextRequest) => {
 
     const body = await req.json(); // Parse the request body
     const { id, text, completed } = body;
+
+    // Ensure the id is a valid MongoDB ObjectId
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid ID");
+    }
 
     // Update the todo for the current user
     const updatedTodo = await Todo.findOneAndUpdate(

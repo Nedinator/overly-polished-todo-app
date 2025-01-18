@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface Todo {
   id: number;
@@ -13,6 +15,16 @@ interface Todo {
 }
 
 export default function TodosPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session) {
+      router.push("/api/auth/signin");
+    }
+  }, [session, status, router]);
+
   const [todos, setTodos] = useState<Todo[]>([
     { id: 1, text: "Learn Next.js", completed: false },
     { id: 2, text: "Build a to-do app", completed: false },
@@ -47,14 +59,27 @@ export default function TodosPage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-gray-800 text-white shadow rounded p-4">
+    <motion.div
+      className="w-full mx-auto bg-transparent text-white shadow-none p-4 mt-16"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
       <h2 className="text-2xl font-bold mb-4">My To-Do List</h2>
       <ul className="list-none space-y-2">
         {todos.map((todo) => (
-          <li key={todo.id} className="flex items-center gap-2">
+          <motion.li
+            key={todo.id}
+            className="flex items-center gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             <Checkbox
               checked={todo.completed}
               onCheckedChange={() => toggleComplete(todo.id)}
+              className="h-5 w-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-2 focus:ring-blue-500"
             />
             <span
               className={`${
@@ -63,7 +88,7 @@ export default function TodosPage() {
             >
               {todo.text}
             </span>
-          </li>
+          </motion.li>
         ))}
       </ul>
       <div className="mt-4">
@@ -82,6 +107,6 @@ export default function TodosPage() {
           Add To-Do
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }

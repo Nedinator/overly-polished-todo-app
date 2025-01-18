@@ -8,8 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
+// Interface for the Todo type
 interface Todo {
-  id: number;
+  _id: string;
   text: string;
   completed: boolean;
 }
@@ -25,26 +26,62 @@ export default function TodosPage() {
     }
   }, [session, status, router]);
 
-  const [todos, setTodos] = useState<Todo[]>([
-    { id: 1, text: "Learn Next.js", completed: false },
-    { id: 2, text: "Build a to-do app", completed: false },
-  ]);
-
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState<string>("");
 
-  const handleAddTodo = () => {
+  // Fetch todos on mount
+  useEffect(() => {
+    const fetchTodos = async () => {
+      if (!session) return;
+      const res = await fetch("/api/todos");
+      const data = await res.json();
+      setTodos(data);
+    };
+    fetchTodos();
+  }, [session]);
+
+  const handleAddTodo = async () => {
     if (newTodo.trim() === "") return;
-    setTodos((prevTodos) => [
-      ...prevTodos,
-      { id: Date.now(), text: newTodo, completed: false },
-    ]);
+
+    const res = await fetch("/api/todos", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: newTodo }),
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      alert("Failed to add to-do");
+      return;
+    }
+
+    const addedTodo = await res.json();
+    setTodos((prevTodos) => [...prevTodos, addedTodo]);
     setNewTodo("");
   };
 
-  const toggleComplete = (id: number) => {
+  const toggleComplete = async (id: string) => {
+    const todoToToggle = todos.find((todo) => todo._id === id);
+    if (!todoToToggle) return;
+
+    const updatedTodo = {
+      ...todoToToggle,
+      completed: !todoToToggle.completed,
+    };
+
+    await fetch(`/api/todos/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedTodo),
+    });
+
     setTodos((prevTodos) =>
       prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        todo._id === id ? { ...todo, completed: updatedTodo.completed } : todo
       )
     );
   };
@@ -69,7 +106,7 @@ export default function TodosPage() {
       <ul className="list-none space-y-2">
         {todos.map((todo) => (
           <motion.li
-            key={todo.id}
+            key={todo._id}
             className="flex items-center gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -78,7 +115,7 @@ export default function TodosPage() {
           >
             <Checkbox
               checked={todo.completed}
-              onCheckedChange={() => toggleComplete(todo.id)}
+              onCheckedChange={() => toggleComplete(todo._id)}
               className="h-5 w-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-2 focus:ring-blue-500"
             />
             <span

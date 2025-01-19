@@ -24,8 +24,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import Todo from "@/models/todo";
 
-// Interface for the Todo type
 interface Todo {
   _id: string;
   text: string;
@@ -121,6 +121,7 @@ export default function TodosPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
   useEffect(() => {
     const fetchTodos = async () => {
       if (!session) return;
@@ -143,14 +144,11 @@ export default function TodosPage() {
       credentials: "include",
     });
 
-    if (!res.ok) {
-      alert("Failed to add to-do");
-      return;
+    if (res.ok) {
+      const addedTodo = await res.json();
+      setTodos((prevTodos) => [...prevTodos, addedTodo]);
+      setNewTodo("");
     }
-
-    const addedTodo = await res.json();
-    setTodos((prevTodos) => [...prevTodos, addedTodo]);
-    setNewTodo("");
   };
 
   const toggleComplete = async (id: string) => {

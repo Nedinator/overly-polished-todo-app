@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, DragEvent } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -16,19 +16,84 @@ import {
   useSensors,
   DragEndEvent,
 } from "@dnd-kit/core";
-
 import {
+  useSortable,
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Interface for the Todo type
 interface Todo {
   _id: string;
   text: string;
   completed: boolean;
+}
+
+interface SortableItemProps {
+  id: string;
+  todo: Todo;
+  toggleComplete: (id: string) => void;
+  handleDelete: (id: string) => void;
+}
+
+function SortableItem({
+  id,
+  todo,
+  toggleComplete,
+  handleDelete,
+}: SortableItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <motion.li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="relative flex items-center justify-between gap-4 group p-3 rounded-lg hover:bg-gray-800 transition-colors duration-300"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex items-center gap-2 flex-1">
+        <Checkbox
+          checked={todo.completed}
+          onCheckedChange={() => toggleComplete(todo._id)}
+          className="h-5 w-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-2 focus:ring-blue-500"
+        />
+        <span
+          className={`${todo.completed ? "line-through text-gray-500" : ""}`}
+        >
+          {todo.text}
+        </span>
+      </div>
+      <motion.button
+        onClick={() => handleDelete(todo._id)}
+        className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500 text-red-500 opacity-0 group-hover:opacity-100 group-hover:bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-300"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+          className="w-5 h-5"
+        >
+          <path d="M9 3h6a1 1 0 011 1v1h4a1 1 0 110 2H4a1 1 0 010-2h4V4a1 1 0 011-1zm-3 5h12l-1 13a2 2 0 01-2 2H9a2 2 0 01-2-2L6 8z" />
+        </svg>
+      </motion.button>
+    </motion.li>
+  );
 }
 
 export default function TodosPage() {
@@ -52,7 +117,6 @@ export default function TodosPage() {
     })
   );
 
-  // Fetch todos on mount
   useEffect(() => {
     const fetchTodos = async () => {
       if (!session) return;
@@ -125,16 +189,14 @@ export default function TodosPage() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
-    if (!active || !over) {
-      return null;
-    }
+    if (!active || !over) return;
 
     if (active.id !== over.id) {
-      setTodos((todos) => {
-        const oldIndex = todos.indexOf(active.id);
-        const newIndex = todos.indexOf(over.id);
+      setTodos((prevTodos) => {
+        const oldIndex = prevTodos.findIndex((todo) => todo._id === active.id);
+        const newIndex = prevTodos.findIndex((todo) => todo._id === over.id);
 
-        return arrayMove(todos, oldIndex, newIndex);
+        return arrayMove(prevTodos, oldIndex, newIndex);
       });
     }
   }
@@ -162,46 +224,18 @@ export default function TodosPage() {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={items} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={todos.map((todo) => todo._id)}
+            strategy={verticalListSortingStrategy}
+          >
             {todos.map((todo) => (
-              <motion.li
+              <SortableItem
                 key={todo._id}
-                className="relative flex items-center justify-between gap-4 group p-3 rounded-lg hover:bg-gray-800 transition-colors duration-300"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="flex items-center gap-2 flex-1">
-                  <Checkbox
-                    checked={todo.completed}
-                    onCheckedChange={() => toggleComplete(todo._id)}
-                    className="h-5 w-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-2 focus:ring-blue-500"
-                  />
-                  <span
-                    className={`${
-                      todo.completed ? "line-through text-gray-500" : ""
-                    }`}
-                  >
-                    {todo.text}
-                  </span>
-                </div>
-                <motion.button
-                  onClick={() => handleDelete(todo._id)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500 text-red-500 opacity-0 group-hover:opacity-100 group-hover:bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5"
-                  >
-                    <path d="M9 3h6a1 1 0 011 1v1h4a1 1 0 110 2H4a1 1 0 010-2h4V4a1 1 0 011-1zm-3 5h12l-1 13a2 2 0 01-2 2H9a2 2 0 01-2-2L6 8z" />
-                  </svg>
-                </motion.button>
-              </motion.li>
+                id={todo._id}
+                todo={todo}
+                toggleComplete={toggleComplete}
+                handleDelete={handleDelete}
+              />
             ))}
           </SortableContext>
         </DndContext>

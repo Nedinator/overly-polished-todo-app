@@ -7,7 +7,7 @@ import { Session } from "@/types/Session";
 import mongoose from "mongoose";
 
 // Helper to get the user ID from the session
-const getUserId = async (req: NextRequest): Promise<string> => {
+export const getUserId = async (req: NextRequest): Promise<string> => {
   const session: Session | null = await getServerSession(authOptions);
 
   if (!session || !session.user || !session.user.email) {

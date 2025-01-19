@@ -31,8 +31,8 @@ TodoSchema.pre("save", async function (next) {
       userId: this.userId,
     }).sort({ orderID: -1 });
 
-    // Set the 'id' field to the next number in the sequence
-    this.id = lastTodo ? lastTodo.orderID + 1 : 1;
+    // Set the 'orderID' field to the next number in the sequence
+    this.orderID = lastTodo ? lastTodo.orderID + 1 : 1;
   }
 
   next(); // Continue with the save operation

@@ -68,7 +68,7 @@ export default function HomeSplash() {
             className="bg-white p-6 rounded-lg shadow text-gray-800"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
           >
             <h2 className="text-xl font-bold mb-2 text-black">Features</h2>
             <p>Track your tasks, set reminders, and much more.</p>
@@ -77,7 +77,7 @@ export default function HomeSplash() {
             className="bg-white p-6 rounded-lg shadow text-gray-800"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
           >
             <h2 className="text-xl font-bold mb-2 text-black">Get Started</h2>
             <p>

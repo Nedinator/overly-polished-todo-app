@@ -65,18 +65,19 @@ function SortableItem({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="flex items-center gap-2 flex-1">
+      <motion.div className="flex items-center gap-2 flex-1">
         <Checkbox
           checked={todo.completed}
           onCheckedChange={() => toggleComplete(todo._id)}
           className="h-5 w-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-2 focus:ring-blue-500"
+          data-no-dnd="true" // Prevents the checkbox from triggering drag events
         />
         <span
           className={`${todo.completed ? "line-through text-gray-500" : ""}`}
         >
           {todo.text}
         </span>
-      </div>
+      </motion.div>
       <motion.button
         onClick={() => handleDelete(todo._id)}
         className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500 text-red-500 opacity-0 group-hover:opacity-100 group-hover:bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-300"
@@ -111,12 +112,15 @@ export default function TodosPage() {
   const [newTodo, setNewTodo] = useState<string>("");
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10, // Adjust the distance as needed
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
   useEffect(() => {
     const fetchTodos = async () => {
       if (!session) return;

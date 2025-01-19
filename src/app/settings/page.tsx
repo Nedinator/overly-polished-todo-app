@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 const SettingsPage: React.FC = () => {
@@ -19,7 +19,8 @@ const SettingsPage: React.FC = () => {
 
       if (response.ok) {
         alert("User data deleted successfully.");
-        router.push("");
+        await router.push("/");
+        signOut();
       } else {
         alert("Lol ima sell ur data now.");
       }

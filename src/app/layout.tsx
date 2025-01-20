@@ -4,6 +4,7 @@ import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import Navbar from "@/components/Navbar";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
               <Navbar />
             </div>
             <main className="mx-auto max-w-5xl text-xl flex flex-col gap-4 min-h-screen p-4">
+              <Toaster position="top-center" />
               {children}
             </main>
           </AnimatedBackground>

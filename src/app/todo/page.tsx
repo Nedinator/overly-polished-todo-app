@@ -25,6 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { format, parseISO } from "date-fns";
+import toast from "react-hot-toast";
 
 interface Todo {
   _id: string;
@@ -136,7 +137,10 @@ export default function TodosPage() {
   }, [session]);
 
   const handleAddTodo = async () => {
-    if (newTodo.trim() === "") return;
+    if (newTodo.trim() === "") {
+      toast.error("Please enter a to-do");
+      return;
+    }
 
     const res = await fetch("/api/todos", {
       method: "POST",
@@ -152,6 +156,7 @@ export default function TodosPage() {
       setTodos((prevTodos) => [...prevTodos, addedTodo]);
       setNewTodo("");
       setDueAt("");
+      toast.success("Todo added successfully!");
     }
   };
 

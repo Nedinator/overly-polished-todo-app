@@ -45,12 +45,13 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     const userId = await getUserId(req); // Get the user ID from the session
 
     const body = await req.json(); // Parse the request body
-    const { text } = body;
+    const { text, dueAt } = body;
 
     // Create a new todo for the current user
     const newTodo = new Todo({
       text,
       completed: false,
+      dueAt,
       userId, // Associate the new todo with the user
     });
     await newTodo.save();

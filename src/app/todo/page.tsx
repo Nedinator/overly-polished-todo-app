@@ -24,12 +24,13 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import Todo from "@/models/todo";
+import { format, parseISO } from "date-fns";
 
 interface Todo {
   _id: string;
   text: string;
   completed: boolean;
+  dueAt: string;
 }
 
 interface SortableItemProps {
@@ -69,18 +70,25 @@ function SortableItem({
         <Checkbox
           checked={todo.completed}
           onCheckedChange={() => toggleComplete(todo._id)}
-          className="h-5 w-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-2 focus:ring-blue-500"
-          data-no-dnd="true" // Prevents the checkbox from triggering drag events
+          className="h-5 w-5 rounded border-gray-600 bg-transparent text-blue-500 focus:ring-2 focus:ring-blue-500"
+          data-no-dnd="true"
         />
-        <span
-          className={`${todo.completed ? "line-through text-gray-500" : ""}`}
-        >
-          {todo.text}
-        </span>
+        <div>
+          <span
+            className={`${todo.completed ? "line-through text-gray-500" : ""}`}
+          >
+            {todo.text}
+          </span>
+          {todo.dueAt && (
+            <span className="ml-2 text-sm text-gray-400">
+              Due: {format(parseISO(todo.dueAt), "PPP")}
+            </span>
+          )}
+        </div>
       </motion.div>
       <motion.button
         onClick={() => handleDelete(todo._id)}
-        className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500 text-red-500 opacity-0 group-hover:opacity-100 group-hover:bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-300"
+        className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-colors duration-300"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -110,16 +118,11 @@ export default function TodosPage() {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState<string>("");
+  const [dueAt, setDueAt] = useState<string>("");
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 10, // Adjust the distance as needed
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
   useEffect(() => {
@@ -140,7 +143,7 @@ export default function TodosPage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: newTodo }),
+      body: JSON.stringify({ text: newTodo, dueAt }),
       credentials: "include",
     });
 
@@ -148,6 +151,7 @@ export default function TodosPage() {
       const addedTodo = await res.json();
       setTodos((prevTodos) => [...prevTodos, addedTodo]);
       setNewTodo("");
+      setDueAt("");
     }
   };
 
@@ -182,13 +186,13 @@ export default function TodosPage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, session }),
+      body: JSON.stringify({ id }),
     });
 
     setTodos((prevTodos) => prevTodos.filter((todo) => todo._id !== id));
   };
 
-  function handleDragEnd(event: DragEndEvent) {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!active || !over) return;
@@ -201,12 +205,13 @@ export default function TodosPage() {
         return arrayMove(prevTodos, oldIndex, newIndex);
       });
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (newTodo.trim() === "") {
         alert("Please enter a to-do");
+        return;
       }
       handleAddTodo();
     }
@@ -250,7 +255,13 @@ export default function TodosPage() {
           onChange={(e) => setNewTodo(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Add a new to-do..."
-          className="w-full px-4 py-2 rounded bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded bg-transparent text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+        />
+        <Input
+          type="date"
+          value={dueAt}
+          onChange={(e) => setDueAt(e.target.value)}
+          className="w-full px-4 py-2 mt-2 rounded bg-transparent text-white focus:ring-2 focus:ring-blue-500"
         />
         <Button
           onClick={handleAddTodo}

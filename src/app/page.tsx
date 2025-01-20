@@ -81,8 +81,8 @@ export default function HomeSplash() {
           >
             <h2 className="text-xl font-bold mb-2 text-black">Get Started</h2>
             <p>
-              It's as easy as clicking the button above and signing in with
-              Google!
+              It&rsquo;s as easy as clicking the button above and signing in
+              with Google!
             </p>
           </motion.div>
         </div>

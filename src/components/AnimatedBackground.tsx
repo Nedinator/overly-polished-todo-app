@@ -9,7 +9,7 @@ export default function AnimatedBackground({
 }) {
   return (
     <motion.div
-      className="absolute inset-0 z-[-1]"
+      className="absolute inset-0 w-full h-full z-[-1]"
       initial={{ backgroundPosition: "0% 50%" }}
       animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
       transition={{

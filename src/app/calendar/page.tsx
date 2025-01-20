@@ -19,7 +19,7 @@ export type Todo = {
 };
 
 export default function CalendarView() {
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
   const router = useRouter();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);

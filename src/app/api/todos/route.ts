@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/mongo";
 import Todo from "@/models/todo";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { Session } from "@/types/Session";
 import mongoose from "mongoose";
 

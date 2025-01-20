@@ -5,17 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { Session } from "@/types/Session";
 import mongoose from "mongoose";
-
-// Helper to get the user ID from the session
-export const getUserId = async (_req: NextRequest): Promise<string> => {
-  const session: Session | null = await getServerSession(authOptions);
-
-  if (!session || !session.user || !session.user.email) {
-    throw new Error("Unauthorized");
-  }
-
-  return session.user?.email;
-};
+import { getUserId } from "@/lib/getUserId";
 
 // Export a named handler for GET requests
 export const GET = async (req: NextRequest): Promise<NextResponse> => {

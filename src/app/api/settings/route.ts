@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/mongo";
 import Todo from "@/models/todo";
-import { getUserId } from "../todos/route";
+import { getUserId } from "@/lib/getUserId";
 
 export const DELETE = async (req: NextRequest): Promise<NextResponse> => {
   try {
